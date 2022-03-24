@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <title>Document</title>
+</head>
+<style>
+    .wrap {
+        width: 800px;
+        margin: auto;
+    }
+
+    .form-group {
+        margin-top: 30px;
+    }
+
+    .label {
+        margin-top: 20px;
+    }
+
+    .btncls {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+        margin-top: 10px;
+    }
+
+    .btn-primary {
+        margin-left: 20px;
+    }
+
+    .inputPwd {
+        width: 200px;
+        margin-left: 10px;
+        -webkit-text-security: disc;
+    }
+</style>
+
+<script>
+    console.log(window.location.href)
+    console.log(window.location.href.split("/"));
+    const postingDate = window.location.href.split("/").slice(-1);
+    console.log(postingDate);
+
+    $(document).ready(function () {
+        get_detail()
+    })
+    //상세페이지 정보
+    //a 태그로 들어온 정보를 주소에 파라미터 값으로 넣어서 ajax콜을 함.
+    function get_detail() {
+        $.ajax({
+            type: "GET",
+            url: `/api/bloglist/detail/${postingDate}`,
+            data: {},
+            success: function (response) {
+                let postingDetail = response["detail"];
+                console.log(postingDetail)
+                //시간 표시를 이쁘게 하기위해서 변수에 지정해줌
+                let dateDetail = postingDetail['postingDate'];
+                console.log(dateDetail)
+                let pwd = postingDetail['password'];
+                console.log(pwd)
+                //시간이 저장된 변수에 date moment 포맷으로 변경
+                let date = moment(dateDetail).format('YYYY-MM-DD HH:mm')
+                console.log(date)
+                console.log($("#borderName").val())
+                $("#borderName").val(postingDetail["title"]);
+                $("#borderNick").val(postingDetail["userName"]);
+                $("#borderDate").text(date);
+                $("#borderContent").text(postingDetail["content"]);
+            }
+        });
+    }
+
+    //글 수정 전 비밀번호 확인을 위해 모달창 이용
+    function modal_start() {
+        $('#cartModal').modal('show');
+    }
+    function modal_close(){
+        $('#cartModal').modal('hide');
+    }
+
+    //get_detail() 함수에서 가져온 비밀번호를 서로 비교 하려 했으나, 능력부족으로 인해
+    // 새로 ajax콜을 하여 값을 가져옴
+    function modal_ok() {
+        $.ajax({
+            type: "GET",
+            url: `/api/bloglist/detail/${postingDate}`,
+            data: {},
+            success: function (response) {
+                let postingInfo = response["detail"];
+                //db에 저장된 비밀번호 가져오기
+                let pwd = postingInfo['password']
+                //비밀번호 입력창에 입력한 값과 db로 가져온 pwd를 비교하여 검사
+                if (pwd === Number($("#borderPwd").val())) {
+                    correct()
+                }
+                else {
+                    alert("비밀번호가 다릅니다.");
+                }
+            }
+        });
+    }
+
+    // 글을 수정하면서 date 값도 바꾸려고 했으나, date값은 api get할 시 필요한 데이터이기도 하고, 서버와의 연결도 date로 하기 때문에 변경 안함.
+    function correct() {
+        $.ajax({
+            type: "PATCH",
+            url: `/api/bloglist/detail/${postingDate}`,
+            data: {
+                //바뀐 데이터
+                title: $("#borderName").val(),
+                userName: $("#borderNick").val(),
+                content: $("#borderContent").val(),
+            },
+            success: function (response) {
+                if (response["result"] == "success") {
+                    alert("수정완료!");
+                    window.location.href = "/"
+                }
+            }
+        });
+    }
+    //취소 버튼 시 뒤로가기 기능
+    function back() {
+        location.href = 'javascript:history.back();'
+    }
+
+</script>
+
+<body>
+    <div class='wrap'>
+      <h1>샘플 게시판</h1>
+      <div class="form-group">
+        <div class="label">
+          <label for="exampleFormControlInput1" style="font-weight: bold;">제목 :</label>
+          <input id="borderName">
+        </div>
+        <div class="label">
+          <label for="exampleFormControlInput1" style="font-weight: bold;">작성자 :</label>
+          <input id="borderNick"></label>
+        </div>
+        <div class="label">
+          <label for="exampleFormControlInput1" style="font-weight: bold;">작성했던 날짜 : </label>
+          <label id="borderDate"></label>
+        </div>
+        <div class="label">
+          <label for="exampleFormControlInput1">내용</label>
+          <textarea class="form-control" id="borderContent" type="text" rows="10"></textarea>
+        </div>
+      </div>
+      <div class="btncls">
+        <button class="btn btn-primary" type="submit" onclick="modal_start()">수정 완료</button>
+        <button class="btn btn-primary" type="submit" onclick="back()">취소</button>
+      </div>
+    </div>
+    <div class="modal text-left" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cartModalLabel">알림</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            비밀번호를 입력하세요
+          </div>
+          <input class="inputPwd" id="borderPwd" type="number" placeholder="숫자를 입력하세요" />
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sparta" onclick='modal_ok()'>
+              확인
+            </button>
+            <button type="button" class="btn btn-outline-sparta" onclick='modal_close()' data-dismiss="modal">
+              취소
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+
+</html>

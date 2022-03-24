@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- bootstrap,font,jquery -->
+    <link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+        <title>Document</title>
+</head>
+    <script>
+        
+        $(document).ready(function () {
+            call_postingList();
+        });
+        function call_postingList(){
+            $.ajax({
+                type: "GET",
+                url: `/api/bloglist`,
+                data: {},
+                success: function (response) {
+                    
+                    let bloglist = response["bloglist"]
+                    console.log(bloglist)
+                    for (let i = 0; i < bloglist.length; i++) {
+                        let title = bloglist[i].title;
+                        let userName = bloglist[i].userName;
+                        let postingDate = bloglist[i].postingDate
+                        console.log(postingDate)
+                        console.log(typeof(postingDate))
+                        let date = moment(postingDate).format('YYYY-MM-DD HH:mm')
+                        //let date1 = bloglist[i].postingDate.slice(0,10);
+                        //let date2 = bloglist[i].postingDate.slice()
+                        console.log(date);
+                        let tempHtml = `<tr> 
+                                            <td><a href='/api/bloglist/${postingDate}'>${title}</a></td>
+                                            <td>${userName}</td>
+                                            <td>${date}</td>
+                                        </tr>`
+                        $("#postinglist").append(tempHtml)
+                        //onclick="window.location.href='/gu_names/성동구'"
+                    }
+                }
+            })
+        }
+        
+        //function correct(borderDate) {
+            //location.href = "/borderCorrect"
+        //}
+    </script>
+<body>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">제목</th>
+            <th scope="col">작성자</th>
+            <th scope="col">작성일</th>
+          </tr>
+        </thead>
+        <tbody id = "postinglist">
+          
+        
+        </tbody>
+      </table>
+      <button onclick='location.href="/posting.html"'>글쓰기</button>
+</body>
+</html>

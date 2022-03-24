@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <title>Document</title>
+</head>
+<style>
+  .wrap {
+    width: 800px;
+    margin: auto;
+  }
+
+  .form-group {
+    margin-top: 30px;
+  }
+
+  .label {
+    margin-top: 20px;
+  }
+
+  .btncls {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    margin-top: 10px;
+  }
+
+  .btn-primary {
+    margin-left: 20px;
+  }
+
+  .inputPwd {
+    -webkit-text-security: disc;
+  }
+</style>
+<script>
+  function blogpost() {
+    // 얘네는 detail page에서 쓰자
+    //{#현재 이 html이 랜딩되고있는 url 추출하기#}
+    //let url_string = window.location.href;
+    //let url = new URL(url_string);
+    //{#url에서 id 추출하기#}
+    //let param = url.searchParams.get("id");
+    let date = new Date();
+    let postingDate = date.getTime();
+    let title = $('#title').val()
+    let userName = $('#userName').val()
+    let password = $('#password').val()
+    let content = $('#content').val();
+
+    $.ajax({
+      type: "POST",
+      url: "/api/posting",
+      data: {
+        'title': title,
+        'userName': userName,
+        'password': password,
+        'content': content,
+        postingDate
+      },
+      success: function (response) {
+        alert("등록완료")
+        window.location.href = '/'
+      }
+    }
+    );
+  }
+</script>
+
+<body>
+  <div class='wrap'>
+    <h1>샘플</h1>
+    <div class="form-group">
+      <div class="label">
+        <label for="exampleFormControlInput1" style="font-weight: bold;">제목 :</label>
+        <input type="text" id="title" />
+      </div>
+      <div class="label">
+        <label for="exampleFormControlInput1" style="font-weight: bold;">작성자 :</label>
+        <input type="text" id="userName" />
+      </div>
+      <div class="label">
+        <label for="exampleFormControlInput1" style="font-weight: bold;">비밀 번호 : </label>
+        <input class="inputPwd" id="password" type="password" placeholder="숫자를 입력하세요" />
+      </div>
+      <div class="label">
+        <label for="exampleFormControlInput1">내용</label>
+        <textarea class="form-control" id="content" type="text" rows="10"></textarea>
+      </div>
+    </div>
+    <div class="btncls">
+      <button class="btn btn-primary" type="submit" onclick="blogpost()">작성완료</button>
+      <button class="btn btn-primary" onclick="location.href='/'">뒤로 가기</button>
+    </div>
+  </div>
+</body>
+
+</html>
